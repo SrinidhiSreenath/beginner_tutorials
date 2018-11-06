@@ -66,16 +66,20 @@ std::string outputMessage =
  *   @brief  the ros service callback function that modifies the string to
  * publish
  *
- *   @param  req is the datamember of string type in modifyPutput
+ *   @param  req is the data member of string type in Request object of
+ *           modifyOutput service
+ *           resp is the data member of string type in Response object of
+ *           modifyOutput service
  *   @return boolean value. true to indicate succesful service, false to
  * indicate failure
  */
 bool modifyOutput(beginner_tutorials::modifyOutput::Request &req,
-                  beginner_tutorials::modifyOutput::Response &response) {
+                  beginner_tutorials::modifyOutput::Response &resp) {
   if (!req.currentOutput.empty()) {
     ROS_WARN_STREAM("Publish message in talker node is now changed to "
                     << req.currentOutput);
     outputMessage = req.currentOutput;
+    resp.modifiedOutput = "The talker node is now publishing: " + outputMessage;
     return true;
   } else {
     ROS_ERROR_STREAM(
