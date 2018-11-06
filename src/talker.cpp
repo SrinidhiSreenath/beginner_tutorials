@@ -32,33 +32,31 @@
 /**
  *  @file    talker.cpp
  *  @author  Srinidhi Sreenath (SrinidhiSreenath)
- *  @date    10/23/2018
+ *  @date    11/6/2018
  *  @version 1.0
  *
- *  @brief Source file to implement a simple ROS publisher node
+ *  @brief Source file to implement a simple ROS publisher node and a service
+ *         server node
  *
  *  @section DESCRIPTION
  *
  *  Source file to implement a simple ROS pubslisher node publishing a custom
- *  message
+ *  message and facilitate change in message content upon a request
  *
  */
+// ROS Console
+#include <ros/console.h>
 
 // CPP Headers
 #include <stdlib.h>
 #include <sstream>
 
-// ROS Headers
-#include <ros/console.h>
+// ROS Standard Headers
 #include "ros/ros.h"
 #include "std_msgs/String.h"
 
 // ROS Service
 #include "beginner_tutorials/modifyOutput.h"
-
-/**
- * This tutorial demonstrates simple sending of messages over the ROS system.
- */
 
 std::string outputMessage =
     "Hi! This is Srinidhi! ";  ///< The default output message stream for the
@@ -149,7 +147,7 @@ int main(int argc, char **argv) {
    */
   ros::Publisher chatter_pub = n.advertise<std_msgs::String>("chatter", 1000);
 
-  // Get frequency passed from the launch file as an argument
+  // Get frequency passed by user as an argument
   int frequency;
   if (argc == 2) {
     frequency = std::atoi(argv[1]);
