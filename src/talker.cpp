@@ -51,9 +51,39 @@
 #include "ros/ros.h"
 #include "std_msgs/String.h"
 
+// ROS Service
+#include "beginner_tutorials/modifyOutput.h"
+
 /**
  * This tutorial demonstrates simple sending of messages over the ROS system.
  */
+
+std::string outputMessage =
+    "Hi! This is Srinidhi! ";  ///< The default output message stream for the
+                               ///< publisher node
+
+/**
+ *   @brief  the ros service callback function that modifies the string to
+ * publish
+ *
+ *   @param  req is the datamember of string type in modifyPutput
+ *   @return boolean value. true to indicate succesful service, false to
+ * indicate failure
+ */
+bool modifyOutput(beginner_tutorials::modifyOutput::Request &req,
+                  beginner_tutorials::modifyOutput::Response &response) {
+  if (!req.currentOutput.empty()) {
+    ROS_WARN_STREAM("Publish message in talker node is now changed to "
+                    << req.currentOutput);
+    outputMessage = req.currentOutput;
+    return true;
+  } else {
+    ROS_ERROR_STREAM(
+        "Did not recieve any message to modify. Publishing default message!");
+    return false;
+  }
+}
+
 /**
  *   @brief  main function implementing the publisher node
  *
@@ -80,6 +110,11 @@ int main(int argc, char **argv) {
    * last NodeHandle destructed will close down the node.
    */
   ros::NodeHandle n;
+
+  // Register a service with the master
+  ros::ServiceServer server =
+      n.advertiseService("modify_output", &modifyOutput);
+  ROS_INFO("Ready to change publish message!");
 
   /**
    * The advertise() function is how you tell ROS that you want to
@@ -114,7 +149,7 @@ int main(int argc, char **argv) {
     std_msgs::String msg;
 
     std::stringstream ss;
-    ss << "Hi! This is Srinidhi! " << count;
+    ss << outputMessage << count;
     msg.data = ss.str();
 
     ROS_INFO("%s", msg.data.c_str());
