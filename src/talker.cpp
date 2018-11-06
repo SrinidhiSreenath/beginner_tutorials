@@ -75,6 +75,7 @@ std::string outputMessage =
  */
 bool modifyOutput(beginner_tutorials::modifyOutput::Request &req,
                   beginner_tutorials::modifyOutput::Response &resp) {
+  ROS_INFO_STREAM("Ready to change publish message!");
   if (!req.desiredOutput.empty()) {
     ROS_WARN_STREAM("Publish message in talker node is now changed to "
                     << req.desiredOutput);
@@ -119,7 +120,6 @@ int main(int argc, char **argv) {
   // Register a service with the master
   ros::ServiceServer server =
       n.advertiseService("modify_output", &modifyOutput);
-  ROS_INFO_STREAM("Ready to change publish message!");
 
   /**
    * The advertise() function is how you tell ROS that you want to
