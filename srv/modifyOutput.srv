@@ -1,0 +1,5 @@
+#request 
+string currentOutput
+---
+#response
+string modifiedOutput
