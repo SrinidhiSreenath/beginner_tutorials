@@ -1,5 +1,5 @@
 #request 
-string currentOutput
+string desiredOutput
 ---
 #response
 string modifiedOutput
