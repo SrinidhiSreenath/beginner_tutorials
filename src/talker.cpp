@@ -45,6 +45,7 @@
  */
 
 // CPP Headers
+#include <stdlib.h>
 #include <sstream>
 
 // ROS Headers
@@ -71,7 +72,7 @@ std::string outputMessage =
  *           resp is the data member of string type in Response object of
  *           modifyOutput service
  *   @return boolean value. true to indicate succesful service, false to
- * indicate failure
+ *           indicate failure
  */
 bool modifyOutput(beginner_tutorials::modifyOutput::Request &req,
                   beginner_tutorials::modifyOutput::Response &resp) {
@@ -140,7 +141,26 @@ int main(int argc, char **argv) {
    */
   ros::Publisher chatter_pub = n.advertise<std_msgs::String>("chatter", 1000);
 
-  ros::Rate loop_rate(10);
+  // Get frequency passed from the launch file as an argument
+  int frequency;
+  if (argc == 2) {
+    frequency = std::atoi(argv[1]);
+    if (frequency <= 0) {
+      ROS_ERROR_STREAM("The user defined frequency is a non positive number");
+      ROS_WARN_STREAM("Frequency is set to 10 Hz");
+      frequency = 10;
+    }
+  } else if (argc == 1) {
+    ROS_WARN_STREAM("No frequency specified. Frequency is set to 10 Hz");
+    frequency = 10;
+  } else {
+    ROS_FATAL_STREAM(
+        "Multiple frequencies specified by the user! Shutting down publisher "
+        "node!");
+    ros::shutdown();
+  }
+
+  ros::Rate loop_rate(frequency);
 
   /**
    * A count of how many messages we have sent. This is used to create
