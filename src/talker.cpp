@@ -49,6 +49,7 @@
 #include <sstream>
 
 // ROS Headers
+#include <ros/console.h>
 #include "ros/ros.h"
 #include "std_msgs/String.h"
 
@@ -118,6 +119,13 @@ int main(int argc, char **argv) {
    */
   ros::NodeHandle n;
 
+  // Change logger level to DEBUG. ROS sets the default logger level to INFO for
+  // roscpp
+  if (ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME,
+                                     ros::console::levels::Debug)) {
+    ros::console::notifyLoggerLevelsChanged();
+  }
+
   // Register a service with the master
   ros::ServiceServer server =
       n.advertiseService("modify_output", &modifyOutput);
@@ -145,6 +153,7 @@ int main(int argc, char **argv) {
   int frequency;
   if (argc == 2) {
     frequency = std::atoi(argv[1]);
+    ROS_DEBUG_STREAM("The user defined frequency is " << frequency);
     if (frequency <= 0) {
       ROS_ERROR_STREAM("The user defined frequency is a non positive number");
       ROS_WARN_STREAM("Frequency is set to 10 Hz");
