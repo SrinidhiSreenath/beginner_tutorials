@@ -32,30 +32,66 @@
 /**
  *  @file    talker.cpp
  *  @author  Srinidhi Sreenath (SrinidhiSreenath)
- *  @date    10/23/2018
+ *  @date    11/6/2018
  *  @version 1.0
  *
- *  @brief Source file to implement a simple ROS publisher node
+ *  @brief Source file to implement a simple ROS publisher node and a service
+ *         server node
  *
  *  @section DESCRIPTION
  *
  *  Source file to implement a simple ROS pubslisher node publishing a custom
- *  message
+ *  message and facilitate change in message content upon a request
  *
  */
+// ROS Console
+#include <ros/console.h>
 
 // CPP Headers
+#include <stdlib.h>
 #include <sstream>
 
-// ROS Headers
+// ROS Standard Headers
 #include "ros/ros.h"
 #include "std_msgs/String.h"
 
+// ROS Service
+#include "beginner_tutorials/modifyOutput.h"
+
+std::string outputMessage =
+    "Hi! This is Srinidhi! ";  ///< The default output message stream for the
+                               ///< publisher node
+
 /**
- * This tutorial demonstrates simple sending of messages over the ROS system.
+ *   @brief  the ros service callback function that modifies the string to
+ * publish
+ *
+ *   @param  req is the data member of string type in Request object of
+ *           modifyOutput service
+ *           resp is the data member of string type in Response object of
+ *           modifyOutput service
+ *   @return boolean value. true to indicate succesful service, false to
+ *           indicate failure
  */
+bool modifyOutput(beginner_tutorials::modifyOutput::Request &req,
+                  beginner_tutorials::modifyOutput::Response &resp) {
+  ROS_INFO_STREAM("Ready to change publish message!");
+  if (!req.desiredOutput.empty()) {
+    ROS_WARN_STREAM("Publish message in talker node is now changed to "
+                    << req.desiredOutput);
+    outputMessage = req.desiredOutput;
+    resp.modifiedOutput = "The talker node is now publishing: " + outputMessage;
+    return true;
+  } else {
+    ROS_ERROR_STREAM(
+        "Did not recieve any message to modify. Publishing default message!");
+    return false;
+  }
+}
+
 /**
- *   @brief  main function implementing the publisher node
+ *   @brief  main function implementing the publisher node which also acts as
+ *           the ros service server node
  *
  *   @param  none
  *   @return integer 0 indication successful execution
@@ -81,6 +117,17 @@ int main(int argc, char **argv) {
    */
   ros::NodeHandle n;
 
+  // Change logger level to DEBUG. ROS sets the default logger level to INFO for
+  // roscpp
+  if (ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME,
+                                     ros::console::levels::Debug)) {
+    ros::console::notifyLoggerLevelsChanged();
+  }
+
+  // Register a service with the master
+  ros::ServiceServer server =
+      n.advertiseService("modify_output", &modifyOutput);
+
   /**
    * The advertise() function is how you tell ROS that you want to
    * publish on a given topic name. This invokes a call to the ROS
@@ -100,7 +147,27 @@ int main(int argc, char **argv) {
    */
   ros::Publisher chatter_pub = n.advertise<std_msgs::String>("chatter", 1000);
 
-  ros::Rate loop_rate(10);
+  // Get frequency passed by user as an argument
+  int frequency;
+  if (argc == 2) {
+    frequency = std::atoi(argv[1]);
+    ROS_DEBUG_STREAM("The user defined frequency is " << frequency);
+    if (frequency <= 0) {
+      ROS_ERROR_STREAM("The user defined frequency is a non positive number");
+      ROS_WARN_STREAM("Frequency is set to 10 Hz");
+      frequency = 10;
+    }
+  } else if (argc == 1) {
+    ROS_WARN_STREAM("No frequency specified. Frequency is set to 10 Hz");
+    frequency = 10;
+  } else {
+    ROS_FATAL_STREAM(
+        "Multiple frequencies specified by the user! Shutting down publisher "
+        "node!");
+    ros::shutdown();
+  }
+
+  ros::Rate loop_rate(frequency);
 
   /**
    * A count of how many messages we have sent. This is used to create
@@ -114,7 +181,7 @@ int main(int argc, char **argv) {
     std_msgs::String msg;
 
     std::stringstream ss;
-    ss << "Hi! This is Srinidhi! " << count;
+    ss << outputMessage << count;
     msg.data = ss.str();
 
     ROS_INFO("%s", msg.data.c_str());

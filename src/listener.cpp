@@ -33,7 +33,7 @@
 /**
  *  @file    listener.cpp
  *  @author  Srinidhi Sreenath (SrinidhiSreenath)
- *  @date    10/23/2018
+ *  @date    11/6/2018
  *  @version 1.0
  *
  *  @brief Source file to implement a simple ROS subscriber node
@@ -58,7 +58,7 @@
  *   @return none
  */
 void chatterCallback(const std_msgs::String::ConstPtr &msg) {
-  ROS_INFO("I heard: [%s]", msg->data.c_str());
+  ROS_INFO_STREAM("I heard: " << msg->data.c_str());
 }
 
 /**
