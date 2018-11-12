@@ -58,9 +58,10 @@
 // ROS Service
 #include "beginner_tutorials/modifyOutput.h"
 
-std::string outputMessage =
-    "Hi! This is Srinidhi! ";  ///< The default output message stream for the
-                               ///< publisher node
+// Struct object that holds the output message stream
+struct message {
+  std::string outputMessage;
+} output;
 
 /**
  *   @brief  the ros service callback function that modifies the string to
@@ -79,8 +80,9 @@ bool modifyOutput(beginner_tutorials::modifyOutput::Request &req,
   if (!req.desiredOutput.empty()) {
     ROS_WARN_STREAM("Publish message in talker node is now changed to "
                     << req.desiredOutput);
-    outputMessage = req.desiredOutput;
-    resp.modifiedOutput = "The talker node is now publishing: " + outputMessage;
+    output.outputMessage = req.desiredOutput;
+    resp.modifiedOutput =
+        "The talker node is now publishing: " + output.outputMessage;
     return true;
   } else {
     ROS_ERROR_STREAM(
@@ -97,6 +99,9 @@ bool modifyOutput(beginner_tutorials::modifyOutput::Request &req,
  *   @return integer 0 indication successful execution
  */
 int main(int argc, char **argv) {
+  output.outputMessage =
+      "Hi! This is Srinidhi! ";  ///< The default output message stream for the
+                                 ///< publisher node
   /**
    * The ros::init() function needs to see argc and argv so that it can perform
    * any ROS arguments and name remapping that were provided at the command
@@ -181,7 +186,7 @@ int main(int argc, char **argv) {
     std_msgs::String msg;
 
     std::stringstream ss;
-    ss << outputMessage << count;
+    ss << output.outputMessage << count;
     msg.data = ss.str();
 
     ROS_INFO("%s", msg.data.c_str());
