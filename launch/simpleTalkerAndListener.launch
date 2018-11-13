@@ -3,6 +3,14 @@
     name="frequency" 
     default = "10"
 />
+<arg 
+    name="rosbagRecord" 
+    default = "false"
+/>
+<arg 
+    name="rosbagName" 
+    default = "chatter"
+/>
 <node 
     pkg = "beginner_tutorials" 
     type = "talker"
@@ -17,4 +25,11 @@
     output = "screen"
     launch-prefix = "xterm -e"
 />
+<node
+    pkg = "rosbag"
+    name = "record"
+    type = "record"
+    args = "-a -O $(find beginner_tutorials)/results/$(arg rosbagName)"
+    if = "$(arg rosbagRecord)"
+/>    
 </launch>
