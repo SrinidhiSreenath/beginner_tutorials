@@ -52,8 +52,9 @@
 #include <sstream>
 
 // ROS Standard Headers
-#include "ros/ros.h"
-#include "std_msgs/String.h"
+#include <ros/ros.h>
+#include <std_msgs/String.h>
+#include <tf/transform_broadcaster.h>
 
 // ROS Service
 #include "beginner_tutorials/modifyOutput.h"
@@ -122,6 +123,10 @@ int main(int argc, char **argv) {
    */
   ros::NodeHandle n;
 
+  // Create transform broadcast object
+  static tf::TransformBroadcaster br;
+  tf::Transform transform;
+
   // Change logger level to DEBUG. ROS sets the default logger level to INFO for
   // roscpp
   if (ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME,
@@ -172,6 +177,7 @@ int main(int argc, char **argv) {
     ros::shutdown();
   }
 
+  // Set loop rate for publishing
   ros::Rate loop_rate(frequency);
 
   /**
@@ -198,6 +204,15 @@ int main(int argc, char **argv) {
      * in the constructor above.
      */
     chatter_pub.publish(msg);
+
+    // Set translation and rotation for the transform broadcast
+    transform.setOrigin(tf::Vector3(cos(ros::Time::now().toSec()),
+                                    sin(ros::Time::now().toSec()), 0.0));
+    tf::Quaternion q;
+    q.setRPY(0, 0, 1.0);
+    transform.setRotation(q);
+    br.sendTransform(
+        tf::StampedTransform(transform, ros::Time::now(), "world", "talk"));
 
     ros::spinOnce();
 
