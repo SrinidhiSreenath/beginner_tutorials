@@ -45,10 +45,17 @@
  *  ros service.
  *
  */
+// GTest Headers
 #include <gtest/gtest.h>
+
+// ROS Headers
 #include <ros/ros.h>
 #include <ros/service_client.h>
+
+// modifyOutput service
 #include "beginner_tutorials/modifyOutput.h"
+
+// ROS Standard message
 #include "std_msgs/String.h"
 
 /**
@@ -61,6 +68,7 @@ TEST(TestTalkerNode, testInitializationOfROSService) {
   ros::NodeHandle nh;
   ros::ServiceClient client =
       nh.serviceClient<beginner_tutorials::modifyOutput>("modify_output");
+  // Check if the client exists
   bool exists(client.waitForExistence(ros::Duration(5.0)));
   EXPECT_TRUE(exists);
 }
